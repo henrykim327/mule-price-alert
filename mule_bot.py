@@ -27,4 +27,4 @@ def check_mule():
             send_discord(f"THR10 매물: {title} / {price}")
 
 if __name__ == "__main__":
-    send_discord("테스트 성공")
+    check_mule()
