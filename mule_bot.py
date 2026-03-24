@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-WEBHOOK_URL = "https://discord.com/api/webhooks/1486046717538205821/SyhCmSNek7cvkEKtmjKapAHPzwHentzP65LUq5OioGSb_eh7QTsZKccMLTg2F3y6x7fE"
+WEBHOOK_URL = "디스코드 웹훅 URL"
 
 URL = "https://www.mule.co.kr/bbs/market/guitar"
 
@@ -9,22 +9,25 @@ def send_discord(message):
     requests.post(WEBHOOK_URL, json={"content": message})
 
 def check_mule():
-    res = requests.get(URL)
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    res = requests.get(URL, headers=headers)
     soup = BeautifulSoup(res.text, "html.parser")
 
-    posts = soup.select(".list_item")
+    posts = soup.select("table tr")
 
     for post in posts:
-        title = post.select_one(".title").text
-        price = post.select_one(".price").text
+        text = post.get_text()
 
-        price_num = int(price.replace(",", "").replace("원", ""))
+        if "THR10II" in text:
+            if "350,000" in text or "340,000" in text or "330,000" in text:
+                send_discord("THR10II 매물 발견\n" + text)
 
-        if "THR10II" in title and price_num <= 350000:
-            send_discord(f"THR10II 매물: {title} / {price}")
-
-        if "THR10" in title and price_num <= 250000:
-            send_discord(f"THR10 매물: {title} / {price}")
+        if "THR10" in text and "THR10II" not in text:
+            if "250,000" in text or "240,000" in text or "230,000" in text:
+                send_discord("THR10 매물 발견\n" + text)
 
 if __name__ == "__main__":
     check_mule()
